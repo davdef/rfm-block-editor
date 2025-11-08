@@ -3,7 +3,7 @@ import Column from "./Column";
 export default function Row({
   row,
   layoutColumns,
-  onDropBlock,
+  onDrop,
   onSelectBlock,
   activeBlock
 }) {
@@ -19,7 +19,7 @@ export default function Row({
             rowId={row.id}
             colIndex={idx}
             blocks={colBlocks}
-            onDropBlock={onDropBlock}
+            onDrop={onDrop}
             onSelectBlock={onSelectBlock}
             activeBlock={activeBlock}
           />

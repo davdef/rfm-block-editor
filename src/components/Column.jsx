@@ -2,6 +2,12 @@
 import { useState } from "react";
 import BlockRenderer from "./BlockRenderer";
 
+const TYPE_ACCENTS = {
+  heading: "border-l-4 border-blue-200 bg-blue-50/70",
+  paragraph: "border-l-4 border-green-200 bg-green-50/70",
+  image: "border-l-4 border-yellow-200 bg-yellow-50/70"
+};
+
 export default function Column({
   rowId,
   colIndex,
@@ -11,13 +17,16 @@ export default function Column({
   activeBlock
 }) {
   const [isOver, setIsOver] = useState(false);
+  const [hoverIndex, setHoverIndex] = useState(null);
 
-  const handleDrop = (e) => {
+  const handleDrop = (e, index = null) => {
     e.preventDefault();
     setIsOver(false);
+    setHoverIndex(null);
     const json = e.dataTransfer.getData("application/json");
     if (!json) return;
     const payload = JSON.parse(json);
+    const insertIndex = typeof index === "number" ? index : blocks.length;
     onDrop({
       type: "column",
       rowId,
@@ -31,7 +40,7 @@ export default function Column({
     if (nextTarget && event.currentTarget.contains(nextTarget)) {
       return;
     }
-    setHoverIndex((prev) => (index === null ? null : prev === index ? null : prev));
+    setHoverIndex((prev) => (prev === index ? null : prev));
   };
 
   const renderDropZone = (index) => (
@@ -55,16 +64,16 @@ export default function Column({
     </div>
   );
 
-  const hasBlocks = blocks.length > 0;
-  const highlightColumn = hoverIndex !== null;
-
   return (
     <div
       onDragOver={(e) => {
         e.preventDefault();
         setIsOver(true);
       }}
-      onDragLeave={() => setIsOver(false)}
+      onDragLeave={() => {
+        setIsOver(false);
+        setHoverIndex(null);
+      }}
       onDrop={handleDrop}
       className={`min-h-[90px] rounded border transition-colors ${
         isOver
@@ -77,38 +86,41 @@ export default function Column({
           Block hier ablegen
         </div>
       )}
-      {blocks.map((block) => {
+      {renderDropZone(0)}
+      {blocks.map((block, index) => {
         const isActive =
           activeBlock &&
           activeBlock.rowId === rowId &&
           activeBlock.colIndex === colIndex &&
           activeBlock.blockId === block.id;
 
-        const accent = `${TYPE_ACCENTS[block.type] || "border-l-gray-300 bg-gray-50"}`;
+        const accent = `${TYPE_ACCENTS[block.type] || "border-l-4 border-gray-200 bg-gray-50"}`;
 
         return (
-          <div
-            key={block.id}
-            draggable
-            onDragStart={(e) => {
-              e.dataTransfer.setData(
-                "application/json",
-                JSON.stringify({
-                  kind: "existing",
-                  rowId,
-                  colIndex,
-                  blockId: block.id
-                })
-              );
-            }}
-            onClick={() => onSelectBlock(rowId, colIndex, block.id)}
-            className={`mb-3 last:mb-0 rounded-lg cursor-move transition shadow-sm ${
-              isActive
-                ? "ring-2 ring-blue-400 bg-white"
-                : "bg-white/80 hover:bg-white"
-            }`}
-          >
-            <BlockRenderer block={block} />
+          <div key={block.id} className="relative">
+            <div
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData(
+                  "application/json",
+                  JSON.stringify({
+                    kind: "existing",
+                    rowId,
+                    colIndex,
+                    blockId: block.id
+                  })
+                );
+              }}
+              onClick={() => onSelectBlock(rowId, colIndex, block.id)}
+              className={`mb-3 last:mb-0 rounded-lg cursor-move transition shadow-sm overflow-hidden ${
+                isActive
+                  ? "ring-2 ring-blue-400 bg-white"
+                  : "bg-white/80 hover:bg-white"
+              } ${accent}`}
+            >
+              <BlockRenderer block={block} />
+            </div>
+            {renderDropZone(index + 1)}
           </div>
         );
       })}

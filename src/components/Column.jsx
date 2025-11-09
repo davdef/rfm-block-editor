@@ -18,8 +18,45 @@ export default function Column({
     const json = e.dataTransfer.getData("application/json");
     if (!json) return;
     const payload = JSON.parse(json);
-    onDrop({ type: "column", rowId, colIndex })(payload);
+    onDrop({
+      type: "column",
+      rowId,
+      colIndex,
+      blockIndex: insertIndex
+    })(payload);
   };
+
+  const handleLeave = (event, index) => {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget && event.currentTarget.contains(nextTarget)) {
+      return;
+    }
+    setHoverIndex((prev) => (index === null ? null : prev === index ? null : prev));
+  };
+
+  const renderDropZone = (index) => (
+    <div
+      key={`drop-${index}`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setHoverIndex(index);
+      }}
+      onDragLeave={(e) => handleLeave(e, index)}
+      onDrop={(e) => handleDrop(e, index)}
+      className="relative my-1 h-4"
+    >
+      <div
+        className={`absolute inset-0 rounded-full border border-dashed transition-all ${
+          hoverIndex === index
+            ? "border-blue-500 bg-blue-300/60 opacity-100"
+            : "border-transparent bg-transparent opacity-0"
+        }`}
+      />
+    </div>
+  );
+
+  const hasBlocks = blocks.length > 0;
+  const highlightColumn = hoverIndex !== null;
 
   return (
     <div
@@ -46,6 +83,8 @@ export default function Column({
           activeBlock.rowId === rowId &&
           activeBlock.colIndex === colIndex &&
           activeBlock.blockId === block.id;
+
+        const accent = `${TYPE_ACCENTS[block.type] || "border-l-gray-300 bg-gray-50"}`;
 
         return (
           <div

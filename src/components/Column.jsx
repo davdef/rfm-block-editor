@@ -1,12 +1,6 @@
 // src/components/Column.jsx
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import BlockRenderer from "./BlockRenderer";
-
-const TYPE_ACCENTS = {
-  heading: "border-l-blue-500 bg-blue-50",
-  paragraph: "border-l-green-500 bg-green-50",
-  image: "border-l-amber-500 bg-amber-50"
-};
 
 export default function Column({
   rowId,
@@ -16,12 +10,11 @@ export default function Column({
   onSelectBlock,
   activeBlock
 }) {
-  const [hoverIndex, setHoverIndex] = useState(null);
+  const [isOver, setIsOver] = useState(false);
 
-  const handleDrop = (e, insertIndex = null) => {
+  const handleDrop = (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    setHoverIndex(null);
+    setIsOver(false);
     const json = e.dataTransfer.getData("application/json");
     if (!json) return;
     const payload = JSON.parse(json);
@@ -68,30 +61,23 @@ export default function Column({
   return (
     <div
       onDragOver={(e) => {
-        if (!hasBlocks) {
-          e.preventDefault();
-          setHoverIndex(0);
-        }
+        e.preventDefault();
+        setIsOver(true);
       }}
-      onDragLeave={(e) => handleLeave(e, null)}
-      onDrop={(e) => {
-        if (!hasBlocks) {
-          handleDrop(e, 0);
-        }
-      }}
-      className={`min-h-[90px] rounded-lg border p-3 transition-colors ${
-        highlightColumn
-          ? "border-blue-500 bg-blue-100/70 shadow-inner"
-          : "border-dashed border-gray-300 bg-white"
+      onDragLeave={() => setIsOver(false)}
+      onDrop={handleDrop}
+      className={`min-h-[90px] rounded border transition-colors ${
+        isOver
+          ? "border-blue-300 bg-blue-50/50"
+          : "border-dashed border-gray-200 bg-gray-50"
       }`}
     >
-      {!hasBlocks && hoverIndex === null && (
+      {blocks.length === 0 && (
         <div className="text-xs text-gray-400 text-center py-6">
           Block hier ablegen
         </div>
       )}
-      {hasBlocks ? renderDropZone(0) : null}
-      {blocks.map((block, index) => {
+      {blocks.map((block) => {
         const isActive =
           activeBlock &&
           activeBlock.rowId === rowId &&
@@ -101,31 +87,29 @@ export default function Column({
         const accent = `${TYPE_ACCENTS[block.type] || "border-l-gray-300 bg-gray-50"}`;
 
         return (
-          <Fragment key={block.id}>
-            <div
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.setData(
-                  "application/json",
-                  JSON.stringify({
-                    kind: "existing",
-                    rowId,
-                    colIndex,
-                    blockId: block.id
-                  })
-                );
-              }}
-              onClick={() => onSelectBlock(rowId, colIndex, block.id)}
-              className={`mb-2 rounded-lg cursor-move border-l-4 px-2 py-1 transition shadow-sm ${
-                isActive
-                  ? "ring-2 ring-blue-500 bg-white"
-                  : "hover:shadow-md"
-              } ${accent}`}
-            >
-              <BlockRenderer block={block} />
-            </div>
-            {renderDropZone(index + 1)}
-          </Fragment>
+          <div
+            key={block.id}
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.setData(
+                "application/json",
+                JSON.stringify({
+                  kind: "existing",
+                  rowId,
+                  colIndex,
+                  blockId: block.id
+                })
+              );
+            }}
+            onClick={() => onSelectBlock(rowId, colIndex, block.id)}
+            className={`mb-3 last:mb-0 rounded-lg cursor-move transition shadow-sm ${
+              isActive
+                ? "ring-2 ring-blue-400 bg-white"
+                : "bg-white/80 hover:bg-white"
+            }`}
+          >
+            <BlockRenderer block={block} />
+          </div>
         );
       })}
     </div>

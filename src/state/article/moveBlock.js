@@ -7,31 +7,25 @@ export default function moveBlock(article, source, target) {
       source.rowId === target.rowId &&
       source.colIndex === target.colIndex
     ) {
-      if (
-        typeof target.blockIndex !== "number" ||
-        target.blockIndex === undefined
-      ) {
-        return article;
-      }
+      return article;
     }
   }
 
   let movingBlock = null;
-  let sourceBlockIndex = null;
 
   const rowsAfterRemoval = article.rows
     .map((row) => {
       if (row.id !== source.rowId) return row;
 
       const columns = row.columns.map((col) => {
-        return col.filter((block, idx) => {
+        const filtered = col.filter((block) => {
           if (block.id === source.blockId) {
             movingBlock = block;
-            sourceBlockIndex = idx;
             return false;
           }
           return true;
         });
+        return filtered;
       });
 
       return {
@@ -63,26 +57,9 @@ export default function moveBlock(article, source, target) {
 
     const columns = ensureRowHasColumns(row);
     const safeIndex = Math.min(target.colIndex, columns.length - 1);
-    const nextColumns = columns.map((col, idx) => {
-      if (idx !== safeIndex) return col;
-
-      let insertIndex =
-        typeof target.blockIndex === "number" ? target.blockIndex : col.length;
-
-      const isSameColumn =
-        row.id === source.rowId && source.colIndex === safeIndex;
-      if (isSameColumn && sourceBlockIndex !== null && insertIndex > sourceBlockIndex) {
-        insertIndex -= 1;
-      }
-
-      insertIndex = Math.max(0, Math.min(insertIndex, col.length));
-
-      return [
-        ...col.slice(0, insertIndex),
-        movingBlock,
-        ...col.slice(insertIndex)
-      ];
-    });
+    const nextColumns = columns.map((col, idx) =>
+      idx === safeIndex ? [...col, movingBlock] : col
+    );
 
     return {
       ...row,

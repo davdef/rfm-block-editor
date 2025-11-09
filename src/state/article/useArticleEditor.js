@@ -28,10 +28,8 @@ export default function useArticleEditor() {
     setArticle((prev) => addRowWithBlock(prev, blockType));
   }, []);
 
-  const addBlock = useCallback((rowId, colIndex, blockType, blockIndex = null) => {
-    setArticle((prev) =>
-      addBlockToColumn(prev, rowId, colIndex, blockType, blockIndex)
-    );
+  const addBlock = useCallback((rowId, colIndex, blockType) => {
+    setArticle((prev) => addBlockToColumn(prev, rowId, colIndex, blockType));
   }, []);
 
   const moveExistingBlock = useCallback((source, target) => {
@@ -45,12 +43,7 @@ export default function useArticleEditor() {
           addRow(payload.blockType);
         }
         if (target.type === "column") {
-          addBlock(
-            target.rowId,
-            target.colIndex,
-            payload.blockType,
-            target.blockIndex
-          );
+          addBlock(target.rowId, target.colIndex, payload.blockType);
         }
       }
 

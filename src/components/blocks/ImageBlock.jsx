@@ -8,7 +8,7 @@ export default function ImageBlock({ src = "", caption = "", align = "center" })
   const alignment = ALIGN_CLASSNAMES[align] || ALIGN_CLASSNAMES.center;
 
   return (
-    <div className={`p-4 flex flex-col gap-2 ${alignment}`}>
+    <div className={`p-4 bg-yellow-50/60 rounded-lg flex flex-col gap-2 ${alignment}`}>
       {src ? (
         <img src={src} alt={caption} className="max-h-48 object-contain rounded shadow-sm" />
       ) : (

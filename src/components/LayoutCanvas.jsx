@@ -5,7 +5,8 @@ export default function LayoutCanvas({
   article,
   onDrop,
   onSelectBlock,
-  activeBlock
+  activeBlock,
+  onChangeRowColumns
 }) {
   const handleCanvasDrop = (e) => {
     e.preventDefault();
@@ -17,26 +18,30 @@ export default function LayoutCanvas({
 
   return (
     <div
-      className="flex-1 bg-gray-50 overflow-y-auto p-6"
+      className="flex-1 overflow-y-auto p-6"
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleCanvasDrop}
     >
       {article.rows.length === 0 && (
-        <div className="border-2 border-dashed border-gray-200 rounded-lg p-10 text-center text-gray-400">
+        <div className="border-2 border-dashed border-gray-200 rounded-lg p-10 text-center text-gray-400 bg-white">
           Zieh einen Block aus der Toolbox hierher oder klicke dort drauf.
         </div>
       )}
 
-      {article.rows.map((row) => (
-        <Row
-          key={row.id}
-          row={row}
-          layoutColumns={article.layout.columns}
-          onDrop={onDrop}
-          onSelectBlock={onSelectBlock}
-          activeBlock={activeBlock}
-        />
-      ))}
+      <div className="space-y-4">
+        {article.rows.map((row, index) => (
+          <Row
+            key={row.id}
+            row={row}
+            layoutColumns={article.layout.columns}
+            onDrop={onDrop}
+            onSelectBlock={onSelectBlock}
+            activeBlock={activeBlock}
+            onChangeColumns={onChangeRowColumns}
+            index={index}
+          />
+        ))}
+      </div>
     </div>
   );
 }

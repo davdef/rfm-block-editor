@@ -1,12 +1,20 @@
-export default function ImageBlock({ src = "", caption = "" }) {
+const ALIGN_CLASSNAMES = {
+  left: "items-start text-left",
+  center: "items-center text-center",
+  right: "items-end text-right"
+};
+
+export default function ImageBlock({ src = "", caption = "", align = "center" }) {
+  const alignment = ALIGN_CLASSNAMES[align] || ALIGN_CLASSNAMES.center;
+
   return (
-    <div className="p-3 bg-yellow-50 rounded text-center">
+    <div className={`p-4 bg-yellow-50/60 rounded-lg flex flex-col gap-2 ${alignment}`}>
       {src ? (
-        <img src={src} alt={caption} className="mx-auto max-h-40 object-contain rounded" />
+        <img src={src} alt={caption} className="max-h-48 object-contain rounded shadow-sm" />
       ) : (
         <div className="text-xs text-gray-400 italic">Kein Bild gesetzt</div>
       )}
-      {caption && <div className="text-xs text-gray-600 mt-1">{caption}</div>}
+      {caption && <div className="text-xs text-gray-600">{caption}</div>}
     </div>
   );
 }

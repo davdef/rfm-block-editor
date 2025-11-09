@@ -1,7 +1,6 @@
 // src/components/Column.jsx
-import HeadingBlock from "./blocks/HeadingBlock";
-import ParagraphBlock from "./blocks/ParagraphBlock";
-import ImageBlock from "./blocks/ImageBlock";
+import { useState } from "react";
+import BlockRenderer from "./BlockRenderer";
 
 export default function Column({
   rowId,
@@ -11,8 +10,11 @@ export default function Column({
   onSelectBlock,
   activeBlock
 }) {
+  const [isOver, setIsOver] = useState(false);
+
   const handleDrop = (e) => {
     e.preventDefault();
+    setIsOver(false);
     const json = e.dataTransfer.getData("application/json");
     if (!json) return;
     const payload = JSON.parse(json);
@@ -21,10 +23,23 @@ export default function Column({
 
   return (
     <div
-      onDragOver={(e) => e.preventDefault()}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setIsOver(true);
+      }}
+      onDragLeave={() => setIsOver(false)}
       onDrop={handleDrop}
-      className="min-h-[70px] bg-gray-50 rounded border border-dashed border-transparent hover:border-gray-300"
+      className={`min-h-[90px] rounded border transition-colors ${
+        isOver
+          ? "border-blue-300 bg-blue-50/50"
+          : "border-dashed border-gray-200 bg-gray-50"
+      }`}
     >
+      {blocks.length === 0 && (
+        <div className="text-xs text-gray-400 text-center py-6">
+          Block hier ablegen
+        </div>
+      )}
       {blocks.map((block) => {
         const isActive =
           activeBlock &&
@@ -48,25 +63,16 @@ export default function Column({
               );
             }}
             onClick={() => onSelectBlock(rowId, colIndex, block.id)}
-            className={`mb-2 rounded cursor-move ${isActive ? "ring-2 ring-blue-400" : ""}`}
+            className={`mb-3 last:mb-0 rounded-lg cursor-move transition shadow-sm ${
+              isActive
+                ? "ring-2 ring-blue-400 bg-white"
+                : "bg-white/80 hover:bg-white"
+            }`}
           >
-            <RenderBlock block={block} />
+            <BlockRenderer block={block} />
           </div>
         );
       })}
     </div>
   );
-}
-
-function RenderBlock({ block }) {
-  switch (block.type) {
-    case "heading":
-      return <HeadingBlock {...block.props} />;
-    case "paragraph":
-      return <ParagraphBlock {...block.props} />;
-    case "image":
-      return <ImageBlock {...block.props} />;
-    default:
-      return <div className="p-2 bg-red-50 text-xs">Unbekannter Block</div>;
-  }
 }

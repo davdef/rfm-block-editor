@@ -2,11 +2,23 @@ import { useMemo } from "react";
 import HeadingSettings from "./settings/HeadingSettings";
 import ImageSettings from "./settings/ImageSettings";
 import ParagraphSettings from "./settings/ParagraphSettings";
+import MediaParagraphSettings from "./settings/MediaParagraphSettings";
+import GallerySettings from "./settings/GallerySettings";
+import VideoSettings from "./settings/VideoSettings";
+import SocialMediaBarSettings from "./settings/SocialMediaBarSettings";
+import ListSettings from "./settings/ListSettings";
+import TableSettings from "./settings/TableSettings";
 
 const BLOCK_TYPES = [
   { type: "heading", label: "Überschrift" },
   { type: "paragraph", label: "Absatz" },
-  { type: "image", label: "Bild" }
+  { type: "image", label: "Bild" },
+  { type: "mediaParagraph", label: "Absatz + Bild" },
+  { type: "gallery", label: "Bildergalerie" },
+  { type: "video", label: "Video" },
+  { type: "socialBar", label: "Social Media" },
+  { type: "list", label: "Liste" },
+  { type: "table", label: "Tabelle" }
 ];
 
 export default function Toolbox({
@@ -44,6 +56,18 @@ export default function Toolbox({
         return <ParagraphSettings block={currentBlock} onChange={onChange} />;
       case "image":
         return <ImageSettings block={currentBlock} onChange={onChange} />;
+      case "mediaParagraph":
+        return <MediaParagraphSettings block={currentBlock} onChange={onChange} />;
+      case "gallery":
+        return <GallerySettings block={currentBlock} onChange={onChange} />;
+      case "video":
+        return <VideoSettings block={currentBlock} onChange={onChange} />;
+      case "socialBar":
+        return <SocialMediaBarSettings block={currentBlock} onChange={onChange} />;
+      case "list":
+        return <ListSettings block={currentBlock} onChange={onChange} />;
+      case "table":
+        return <TableSettings block={currentBlock} onChange={onChange} />;
       default:
         return (
           <p className="text-xs text-red-500">
